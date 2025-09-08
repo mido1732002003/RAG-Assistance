@@ -26,3 +26,25 @@ make setup
 
 # Start the server
 make dev
+## SETUP
+# 1. Activate venv (already done)
+.venv\Scripts\activate
+
+# 2. Upgrade pip
+python -m pip install --upgrade pip
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Copy environment file
+copy .env.example .env
+
+# 5. Create necessary directories
+mkdir data, var\index, var\logs, snapshots -Force
+
+# 6. Now run the scripts (after dependencies are installed)
+python scripts/download_models.py
+python scripts/migrate_db.py
+
+# 7. Start the server
+uvicorn app.main:app --reload
