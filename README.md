@@ -14,20 +14,15 @@ A privacy-first, local knowledge management system with RAG (Retrieval-Augmented
 
 ## Quick Start
 
-### Installation
+## SETUP
 
 ```bash
 # Clone the repository
 git clone <repo-url>
-cd local-rag-assistant
+cd Rag-Assistant
 
-# Run setup
-make setup
-
-# Start the server
-make dev
-## SETUP
-# 1. Activate venv (already done)
+#1. Activate venv
+py -3.11 -m venv .venv
 .venv\Scripts\activate
 
 # 2. Upgrade pip
