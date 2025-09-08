@@ -1,0 +1,15 @@
+<div class="source-card">
+    <div class="source-header">
+        <span class="source-number">[{{ citation.index }}]</span>
+        <span class="source-filename">{{ citation.filename }}</span>
+        {% if citation.page_number %}
+        <span class="source-page">p. {{ citation.page_number }}</span>
+        {% endif %}
+    </div>
+    <div class="source-snippet">
+        {{ citation.text_snippet }}
+    </div>
+    <div class="source-actions">
+        <a href="#" onclick="openFile('{{ citation.file_path }}')" class="source-link">Open File</a>
+    </div>
+</div>

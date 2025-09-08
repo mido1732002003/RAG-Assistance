@@ -1,0 +1,135 @@
+local-rag-assistant/
+├── .env.example                    # Environment configuration template
+├── .gitignore                       # Git ignore patterns
+├── Dockerfile                       # Container image definition
+├── docker-compose.yml               # Docker services orchestration
+├── Makefile                         # Build/dev automation commands
+├── pyproject.toml                   # Python project dependencies and metadata
+├── README.md                        # Quick start guide and usage
+├── ARCHITECTURE.md                  # System design and dataflow
+├── SECURITY.md                      # Privacy and safety documentation
+├── EVALUATION.md                    # Metrics and evaluation guide
+├── requirements.txt                 # Pip requirements (generated from pyproject)
+├── requirements-dev.txt             # Development dependencies
+│
+├── app/                             # Main application package
+│   ├── __init__.py
+│   ├── main.py                      # FastAPI app entry point
+│   ├── config.py                    # Configuration management
+│   ├── dependencies.py              # Dependency injection
+│   │
+│   ├── api/                         # REST API endpoints
+│   │   ├── __init__.py
+│   │   ├── chat.py                  # Chat/QA endpoints
+│   │   ├── search.py                # Search endpoints
+│   │   ├── ingest.py                # Document upload endpoints
+│   │   ├── health.py                # Health check endpoints
+│   │   └── admin.py                 # Admin operations (backup/restore)
+│   │
+│   ├── core/                        # Core business logic
+│   │   ├── __init__.py
+│   │   ├── embeddings.py            # Embedding model management
+│   │   ├── chunker.py               # Text chunking strategies
+│   │   ├── deduplication.py         # MinHash/TF-IDF deduplication
+│   │   ├── language.py              # Language detection
+│   │   ├── retrieval.py             # Hybrid search (vector + BM25)
+│   │   ├── reranker.py              # Cross-encoder reranking
+│   │   ├── generator.py             # Answer generation (offline/LLM)
+│   │   └── citations.py             # Citation extraction and formatting
+│   │
+│   ├── ingest/                      # Document ingestion pipeline
+│   │   ├── __init__.py
+│   │   ├── pipeline.py              # Main ingestion orchestrator
+│   │   ├── watcher.py               # Folder monitoring with watchdog
+│   │   ├── parsers/                 # Document parsers
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py              # Abstract parser interface
+│   │   │   ├── pdf.py               # PDF extraction
+│   │   │   ├── text.py              # TXT/MD processing
+│   │   │   ├── docx.py              # Word document parsing
+│   │   │   └── csv.py               # CSV handling
+│   │   └── preprocessor.py          # Text normalization utilities
+│   │
+│   ├── storage/                     # Persistence layer
+│   │   ├── __init__.py
+│   │   ├── vector_store.py          # FAISS index management
+│   │   ├── document_store.py        # SQLite document metadata
+│   │   ├── models.py                # SQLAlchemy models
+│   │   └── cache.py                 # Query/response caching
+│   │
+│   ├── ui/                          # Web interface
+│   │   ├── __init__.py
+│   │   ├── routes.py                # UI route handlers
+│   │   ├── templates/               # Jinja2 templates
+│   │   │   ├── base.html            # Base layout
+│   │   │   ├── chat.html            # Chat interface
+│   │   │   └── components/          # Reusable UI components
+│   │   │       ├── message.html
+│   │   │       └── source_card.html
+│   │   └── static/                  # Static assets
+│   │       ├── css/
+│   │       │   └── main.css
+│   │       └── js/
+│   │           └── app.js           # Minimal JS for interactivity
+│   │
+│   └── utils/                       # Utility functions
+│       ├── __init__.py
+│       ├── logging.py               # PII-safe logging setup
+│       ├── paths.py                 # Path normalization
+│       └── tokens.py                # Token counting utilities
+│
+├── cli/                             # Command-line interface
+│   ├── __init__.py
+│   ├── main.py                      # Click CLI entry point
+│   ├── commands/
+│   │   ├── __init__.py
+│   │   ├── ingest.py                # Manual ingestion commands
+│   │   ├── search.py                # CLI search interface
+│   │   ├── chat.py                  # Interactive chat mode
+│   │   └── admin.py                 # Backup/restore commands
+│   └── utils.py                     # CLI helpers
+│
+├── eval/                            # Evaluation framework
+│   ├── __init__.py
+│   ├── datasets/                    # Sample Q&A datasets
+│   │   ├── sample_qa.json
+│   │   └── custom_qa.json
+│   ├── metrics.py                   # Retrieval@k, MRR calculations
+│   ├── runner.py                    # Evaluation runner
+│   └── report.py                    # Results reporting
+│
+├── tests/                           # Test suite
+│   ├── __init__.py
+│   ├── conftest.py                  # Pytest fixtures
+│   ├── unit/
+│   │   ├── __init__.py
+│   │   ├── test_chunker.py
+│   │   ├── test_embeddings.py
+│   │   ├── test_retrieval.py
+│   │   ├── test_parsers.py
+│   │   └── test_deduplication.py
+│   ├── integration/
+│   │   ├── __init__.py
+│   │   ├── test_pipeline.py
+│   │   └── test_api.py
+│   └── e2e/
+│       ├── __init__.py
+│       └── test_chat_flow.py        # End-to-end smoke test
+│
+├── scripts/                         # Utility scripts
+│   ├── setup.sh                     # Initial setup script
+│   ├── download_models.py          # Pre-download embedding models
+│   └── migrate_db.py                # Database migrations
+│
+├── data/                            # Default watch directory (gitignored)
+│   └── .gitkeep
+│
+├── var/                             # Runtime data (gitignored)
+│   ├── index/                       # FAISS index storage
+│   │   └── .gitkeep
+│   ├── rag.db                       # SQLite database
+│   └── logs/                        # Application logs
+│       └── .gitkeep
+│
+└── snapshots/                       # Backup snapshots (gitignored)
+    └── .gitkeep

@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}Chat - Local RAG Assistant{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="chat-container">
+        <div class="chat-main">
+            <div class="chat-header">
+                <h2>💬 Ask a Question</h2>
+                <div class="chat-controls">
+                    <label>
+                        Top Results: 
+                        <input type="range" id="topK" min="1" max="20" value="{{ default_top_k }}" 
+                               oninput="document.getElementById('topKValue').textContent = this.value">
+                        <span id="topKValue">{{ default_top_k }}</span>
+                    </label>
+                    <label>
+                        Mode:
+                        <select id="mode">
+                            <option value="auto">Auto</option>
+                            <option value="offline">Offline Only</option>
+                            {% if not offline_mode %}
+                            <option value="llm">LLM Mode</option>
+                            {% endif %}
+                        </select>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                {% if query %}
+                <div class="message user-message">
+                    <strong>You:</strong> {{ query }}
+                </div>
+                {% endif %}
+                
+                {% if answer %}
+                <div class="message assistant-message">
+                    <strong>Assistant ({{ mode }}):</strong>
+                    <div class="answer-content">{{ answer }}</div>
+                    
+                    {% if citations %}
+                    <div class="citations">
+                        <strong>Sources:</strong>
+                        {% for citation in citations %}
+                        <div class="citation-item">
+                            {% include "components/source_card.html" %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if confidence %}
+                    <div class="confidence">
+                        Confidence: {{ "%.2f"|format(confidence) }}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <form class="chat-input" method="POST" action="/chat" id="chatForm">
+                <input type="text" 
+                       name="query" 
+                       placeholder="Ask about your documents..." 
+                       required 
+                       maxlength="1000"
+                       autofocus>
+                <input type="hidden" name="top_k" id="topKInput" value="{{ default_top_k }}">
+                <input type="hidden" name="mode" id="modeInput" value="auto">
+                <button type="submit">Send</button>
+            </form>
+        </div>
+        
+        <div class="chat-sidebar">
+            <h3>📄 Retrieved Documents</h3>
+            {% if contexts %}
+            <div class="context-list">
+                {% for context in contexts %}
+                <div class="context-card">
+                    <div class="context-header">
+                        <strong>{{ context.filename }}</strong>
+                        <span class="score">Score: {{ "%.3f"|format(context.score) }}</span>
+                    </div>
+                    <div class="context-snippet">
+                        {{ context.text[:200] }}{% if context.text|length > 200 %}...{% endif %}
+                    </div>
+                    {% if context.page_number %}
+                    <div class="context-meta">Page {{ context.page_number }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="no-contexts">No documents retrieved yet. Ask a question to see relevant sources.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Update hidden inputs when controls change
+    document.getElementById('topK').addEventListener('change', function() {
+        document.getElementById('topKInput').value = this.value;
+    });
+    
+    document.getElementById('mode').addEventListener('change', function() {
+        document.getElementById('modeInput').value = this.value;
+    });
+    
+    // Keyboard shortcut (Ctrl/Cmd + K)
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            document.querySelector('input[name="query"]').focus();
+        }
+    });
+</script>
+{% endblock %}

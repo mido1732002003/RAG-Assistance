@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Local RAG Assistant{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/main.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>📚 Local RAG Assistant</h1>
+            </div>
+            <div class="navbar-menu">
+                <a href="/chat" class="nav-link">Chat</a>
+                <a href="/api/docs" class="nav-link">API Docs</a>
+                <span class="mode-indicator">
+                    {% if offline_mode %}
+                        🔒 Offline Mode
+                    {% else %}
+                        🌐 {{ llm_provider|title }} Mode
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </nav>
+    
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Local RAG Assistant | Privacy-First Knowledge Management</p>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', path='/js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

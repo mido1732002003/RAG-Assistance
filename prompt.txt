@@ -1,0 +1,109 @@
+You are a senior AI/RAG engineer + prompt engineer. Build a **local-first RAG assistant** that runs on my laptop with simple requirements and strong, clean code.
+
+# OUTPUT STYLE & FLOW (IMPORTANT)
+- Your **FIRST reply MUST be ONLY the full repository file tree** (with short annotations) and **nothing else**. End the first reply with exactly: **"Continue to the next part? (yes/no)"**.
+- After I say "yes", you decide how many large parts to use. Split your output into as FEW parts as possible, each part being BIG and logically grouped (you choose the grouping).
+- Before emitting each part, internally validate imports/paths/types/env names and cross-file consistency.
+- Use clear section labels inside each part (e.g., PART 2: Core backend) but keep the number of parts minimal.
+
+# PROJECT GOAL
+A **Local Knowledge Assistant (RAG Engine)** that:
+- Indexes and watches my chosen folders on disk (no heavy infra).
+- Answers questions using retrieved chunks from my local files with citations.
+- Can run fully offline (no external calls) OR optionally use an API LLM if I provide a key.
+- Suitable for everyday use: quick setup, safe defaults, and clear UX.
+
+# STACK & REQUIREMENTS (SIMPLE, CROSS-PLATFORM)
+- **Language**: Python 3.10+
+- **API**: FastAPI + Uvicorn
+- **Embeddings**: sentence-transformers (`all-MiniLM-L6-v2`) by default
+- **Vector store**: FAISS (CPU)
+- **Persistence**: store FAISS index + SQLite (for doc metadata/citations/cache)
+- **PDF/Text parsing**: pypdf / pdfminer.six + text normalization utils
+- **Folder watcher**: watchdog (cross-platform)
+- **UI**: Lightweight FastAPI + Jinja2 (or HTMX) chat/search page (no heavy frontend build)
+- **CLI**: small CLI for ingest/search/chat (optional but useful)
+- **Testing**: pytest
+- **Packaging**: pyproject.toml (poetry or pip-tools acceptable), Makefile
+- **Docker**: Single Dockerfile + optional docker-compose (FAISS + app only)
+- **OS**: must work on Windows/macOS/Linux without OS-specific hacks
+
+# CORE FEATURES (MUST)
+1) **Ingestion Pipeline**
+   - Select and watch 1..N folders (configurable). On create/update/delete:
+     - Parse PDFs/CSVs/TXT/MD/DOCX (DOCX via python-docx), extract text.
+     - Chunking: semantic-aware splitter w/ overlap (configurable).
+     - Language detection (fasttext-lite or langdetect) → store lang in metadata.
+     - Deduplication: MinHash or simple TF-IDF cosine to avoid near-duplicates across files.
+     - Store: (doc_id, path, mtime, size, mime, lang, title, checksum), chunk_id, text, embedding.
+     - Persist FAISS index on disk; maintain a SQLite docstore for metadata.
+
+2) **Retrieval**
+   - Hybrid search: **vector similarity + lightweight BM25** (use `rank_bm25` or simple BM25 impl).
+   - Re-ranking (optional): cross-encoder `cross-encoder/ms-marco-MiniLM-L-6-v2` if available; else skip.
+   - Top-k configurable; return citations (file path + page range) and snippet highlights.
+
+3) **Generation**
+   - **Two modes**:
+     a) **Offline mode**: no external calls → return “Best Answer” synthesized from top chunks (simple extractive synthesis), with citations.
+     b) **LLM mode** (optional): If `OPENAI_API_KEY` or `MISTRAL_API_KEY` is provided, build a grounded prompt (question + top chunks) and generate an answer. Always include citations.
+   - Guardrails: refuse to answer outside indexed scope; respond with “no relevant context found” gracefully.
+
+4) **UI/UX**
+   - Single-page chat/search UI:
+     - left: conversation; right: retrieved source cards (filename, score, quick open path).
+     - Toggle: Offline vs LLM mode; sliders for top_k and max_context_tokens.
+     - Upload button to ingest a single file immediately (optional).
+   - Keyboard: `Ctrl/Cmd+K` opens a quick search palette (optional).
+
+5) **Privacy & Safety**
+   - Strict local-first: default is offline; never send content externally unless key + toggle are enabled.
+   - `.env` controls: WATCH_DIRS (comma-separated), INDEX_DIR, SQLITE_PATH, MODEL_NAME, OFFLINE_MODE=true/false.
+   - PII-safe logs: no raw content in logs; redact tokens; rotating file logs.
+
+6) **Ops & DX**
+   - Health endpoints: `/healthz`, `/readiness`.
+   - Simple evaluation harness: `eval/` with sample Q&A + script to compute retrieval@k and MRR.
+   - Backup/restore: compress SQLite + FAISS snapshot into `snapshots/`.
+   - Tests: unit tests for chunking, embedding, retrieval; one E2E smoke for /chat.
+
+# NICE-TO-HAVE (ADD IF TIME PERMITS)
+- Multi-query expansion (RAG-Fusion / HyDE-like): generate or derive paraphrases of the query and merge results.
+- Context window optimizer: deduplicate overlapping chunks and trim by token budget with maximal marginal relevance (MMR).
+- Auto language selection: choose embedding model by detected language (fallback to default).
+- Inline PDF page previews (rendered thumbnails) in the UI when available.
+
+# ACCEPTANCE CRITERIA
+- `make setup && make dev` runs the app locally without extra steps.
+- I can set `WATCH_DIRS` to a local folder and see automatic ingestion + indexing.
+- `/chat` answers with citations; offline mode works without any API keys.
+- Adding/removing a file updates the index (eventually consistent).
+- Docker build runs; tests pass locally.
+
+# ENV & CONFIG (DEFAULTS)
+- `.env.example` with:
+  - WATCH_DIRS=./data
+  - INDEX_DIR=./var/index
+  - SQLITE_PATH=./var/rag.db
+  - MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+  - OFFLINE_MODE=true
+  - OPENAI_API_KEY=
+  - MISTRAL_API_KEY=
+- On first run, if `WATCH_DIRS` not set, prompt me interactively in the CLI to choose a folder (but DO NOT block the first reply structure).
+
+# DOCUMENTATION
+- `README.md`: quickstart (venv/poetry), how to point to a folder, offline vs LLM mode, evaluation, backup/restore, troubleshooting (Windows path quirks, long filenames, PDF parser fallbacks).
+- `ARCHITECTURE.md`: diagrams + dataflow (ingest → embed → store → retrieve → generate), index lifecycle, consistency model.
+- `SECURITY.md`: local-only guarantees, advisory if LLM mode enabled, log redaction.
+- `EVALUATION.md`: metrics, how to add custom eval sets.
+
+# CONSTRAINTS
+- Keep dependencies lean; avoid heavyweight services (no Elastic, no external DB).
+- Code must be type-hinted, documented, and organized by modules.
+- Prefer pure-Python solutions when reasonable; ensure Windows/macOS/Linux compatibility.
+- Handle large folders incrementally; don’t re-embed unchanged files (use checksum/mtime).
+
+# FIRST REPLY REMINDER
+Your **first reply must ONLY contain** the full repo **file tree with short annotations**, followed by exactly:
+**"Continue to the next part? (yes/no)"**
+Do not include any other text in the first reply.

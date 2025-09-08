@@ -1,0 +1,79 @@
+You are now in **REVIEW & FIX** mode for the project you just generated.
+
+GOAL:
+- Validate the repo you produced against the **file tree you printed in Part 1** (that tree is the source of truth).
+- Fix gaps so the project runs end-to-end locally with simple commands.
+
+TASKS (do them in order):
+1) **Structure comparison** (against the Part 1 tree you printed):
+   - List **Matched files (count: N)** — exact paths.
+   - List **Missing files (count: M)** — exact paths. Treat directories lacking `__init__.py` as missing.
+   - List **Extra files (count: K)** — exact paths, and say keep/remove + why.
+
+2) **Create missing files** so the app can run cleanly:
+   - For EACH missing file, emit a minimal, correct implementation.
+   - Use this emission format so I can copy/paste directly:
+     ```
+     ```python
+     # path: relative/path/to/file.py
+     <file content>
+     ```
+     ```
+     (Use the right language tag for .html/.css/.js/.sh, but keep the same `# path:` header.)
+
+3) **Patches (only if necessary)**:
+   - If an existing file needs a small fix (imports/paths/types/config), provide EITHER:
+     - A minimal unified diff:
+       ```
+       --- a/app/core/retrieval.py
+       +++ b/app/core/retrieval.py
+       @@
+       - old line
+       + new line
+       ```
+     - OR the full updated file in the same fenced block format with `# path:`.
+
+4) **Runbook (clear and concise)** — explain exactly how to run:
+   - Prereqs: Python 3.10+, Git, FAISS CPU wheels notes for Windows/macOS/Linux.
+   - Setup venv + install:
+     - Unix/macOS: `python -m venv .venv && source .venv/bin/activate`
+     - Windows: `py -m venv .venv && .venv\Scripts\activate`
+     - Install: `pip install -r requirements.txt` (or `pip install -e .`)
+   - Environment:
+     - Copy `.env.example` → `.env`, explain keys briefly:
+       `WATCH_DIRS, INDEX_DIR, SQLITE_PATH, MODEL_NAME, OFFLINE_MODE, (OPENAI_API_KEY|MISTRAL_API_KEY optional)`
+   - First run:
+     - (Optional) `python scripts/download_models.py`
+     - Start API/UI: `uvicorn app.main:app --reload` then open `http://localhost:8000/` and `/docs`
+   - Ingest data:
+     - Put sample files in `./data`
+     - CLI: `python -m cli.main ingest --path ./data`
+     - Or API: `POST /api/ingest`
+     - Watcher: ensure `WATCH_DIRS=./data` in `.env`, then run server
+   - Search/Chat:
+     - UI chat page route + toggle Offline vs LLM mode
+     - CLI: `python -m cli.main search "your query"` / `python -m cli.main chat`
+   - Health & Logs:
+     - `/healthz`, `/readiness`, logs under `var/logs/`
+   - Docker (optional):
+     - `docker build -t local-rag .`
+     - `docker compose up -d`
+     - Mount volumes for `data/`, `var/index/`, `var/rag.db`
+
+5) **Self-test & Troubleshooting**:
+   - Self-test checklist (commands): run server → ingest 1 TXT/PDF → confirm Top-K → see citations → offline answer works.
+   - Common issues + quick fixes:
+     - FAISS wheels on Apple Silicon/Windows
+     - PDF parser fallback (pypdf → pdfminer.six)
+     - Permissions on `WATCH_DIRS`, long paths on Windows, encoding issues
+   - Reset instructions: delete `var/index/*` and `var/rag.db`, re-ingest.
+
+6) **Final summary**:
+   - Bullet list of files you created/changed in this pass (paths only).
+   - Any TODOs left (e.g., optional reranker, MMR, HyDE, FTS5 mirror).
+
+CONSTRAINTS:
+- **Do NOT print the full tree here** — use the tree you printed in Part 1 as the reference.
+- Keep dependencies and changes minimal; don’t rewrite working files.
+- Ensure imports/paths/types/env names are consistent.
+- After applying your changes, the project must run end-to-end with the Runbook.

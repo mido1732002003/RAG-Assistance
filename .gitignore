@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.ruff_cache/
+
+# Project specific
+/data/*
+!/data/.gitkeep
+/var/*
+!/var/.gitkeep
+!/var/index/.gitkeep
+!/var/logs/.gitkeep
+/snapshots/*
+!/snapshots/.gitkeep
+.env
+*.db
+*.faiss
+*.pkl
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Models cache
+.cache/
+models/

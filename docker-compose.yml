@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  rag-assistant:
+    build: .
+    container_name: local-rag-assistant
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./var:/app/var
+      - ./snapshots:/app/snapshots
+    environment:
+      - WATCH_DIRS=/app/data
+      - INDEX_DIR=/app/var/index
+      - SQLITE_PATH=/app/var/rag.db
+      - OFFLINE_MODE=true
+      - LOG_LEVEL=INFO
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - rag-network
+
+networks:
+  rag-network:
+    driver: bridge

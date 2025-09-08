@@ -1,0 +1,22 @@
+{
+  "queries": [
+    {
+      "id": "q1",
+      "question": "What is the main purpose of this system?",
+      "relevant_docs": ["README.md"],
+      "expected_answer": "A privacy-first, local knowledge management system with RAG capabilities."
+    },
+    {
+      "id": "q2", 
+      "question": "How does the hybrid search work?",
+      "relevant_docs": ["ARCHITECTURE.md"],
+      "expected_answer": "Combines vector similarity search using FAISS with keyword search using BM25."
+    },
+    {
+      "id": "q3",
+      "question": "What file formats are supported?",
+      "relevant_docs": ["README.md"],
+      "expected_answer": "PDF, DOCX, TXT, MD, and CSV files are supported."
+    }
+  ]
+}
